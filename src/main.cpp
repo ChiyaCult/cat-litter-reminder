@@ -56,8 +56,13 @@ void attemptTimeSync() {
     bool justSynced = !hasSyncedAtLeastOnce;
     hasSyncedAtLeastOnce = true;
     if (justSynced) {
+      Serial.println("[main] time sync succeeded, leaving unsynced screen");
       refreshDisplay(); // leave the "not synced" screen as soon as we can
+    } else {
+      Serial.println("[main] periodic re-sync succeeded");
     }
+  } else {
+    Serial.println("[main] time sync failed, will retry later");
   }
 }
 
@@ -65,9 +70,13 @@ void attemptTimeSync() {
 
 void setup() {
   Serial.begin(115200);
+  delay(500); // give the serial monitor a moment to attach after boot
+  Serial.println("[main] booting cat litter reminder...");
+
   button.begin();
   hardware::initDisplay();
   hardware::showTimeNotSynced();
+  Serial.println("[main] display initialized, showing 'time not synced'");
 
   attemptTimeSync();
   if (hasSyncedAtLeastOnce) {
@@ -77,6 +86,7 @@ void setup() {
 
 void loop() {
   if (button.update()) {
+    Serial.println("[main] button press detected");
     // A press only records a Cleaning Event if Time Sync has succeeded at
     // least once -- otherwise we'd risk recording a bogus pre-1970
     // timestamp. See ADR-0001 and domain::canRecordCleaningEvent. If
@@ -84,17 +94,22 @@ void loop() {
     // screen already explains why the press didn't register.
     if (domain::canRecordCleaningEvent(hasSyncedAtLeastOnce)) {
       store.set(time(nullptr));
+      Serial.println("[main] cleaning event recorded");
       refreshDisplay();
+    } else {
+      Serial.println("[main] press rejected -- time not synced yet");
     }
   }
 
   if (!hasSyncedAtLeastOnce &&
       (millis() - lastSyncAttemptMs) >= SYNC_RETRY_INTERVAL_MS) {
+    Serial.println("[main] retrying time sync...");
     attemptTimeSync();
   }
 
   if ((millis() - lastDisplayRefreshMs) >= DAILY_REFRESH_INTERVAL_MS) {
     // Re-sync once a day too, so the clock doesn't drift indefinitely.
+    Serial.println("[main] daily refresh triggered");
     attemptTimeSync();
     refreshDisplay();
   }

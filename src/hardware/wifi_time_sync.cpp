@@ -21,35 +21,47 @@ constexpr unsigned long kNtpSyncTimeoutMs = 10000;
 constexpr time_t kPlausibleMinimumEpoch = 1700000000; // ~November 2023
 
 bool connectWifi() {
+  Serial.print("[wifi] connecting to \"");
+  Serial.print(WIFI_SSID);
+  Serial.println("\"...");
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED) {
     if (millis() - start > kWifiConnectTimeoutMs) {
+      Serial.println("[wifi] connect timed out");
       return false;
     }
     delay(100);
   }
+  Serial.print("[wifi] connected, IP ");
+  Serial.println(WiFi.localIP());
   return true;
 }
 
 bool syncNtp() {
+  Serial.println("[ntp] requesting time...");
   configTime(kGmtOffsetSec, kDaylightOffsetSec, kNtpServer);
   unsigned long start = millis();
   time_t now = time(nullptr);
   while (now < kPlausibleMinimumEpoch) {
     if (millis() - start > kNtpSyncTimeoutMs) {
+      Serial.println("[ntp] sync timed out");
       return false;
     }
     delay(200);
     now = time(nullptr);
   }
+  Serial.print("[ntp] synced, current UTC epoch = ");
+  Serial.println((long)now);
   return true;
 }
 
 void disconnectWifi() {
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
+  Serial.println("[wifi] disconnected");
 }
 
 } // namespace

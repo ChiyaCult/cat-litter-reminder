@@ -1,0 +1,9 @@
+# Home Assistant integration: MQTT, device publishes raw state only, HA owns Reminder logic
+
+The device needs to get Last Cleaned Timestamp data to Home Assistant so a Reminder can be triggered when the litter has gone uncleaned too long. Two boundary questions needed resolving: which protocol, and which side (device firmware vs. HA) owns the "is this overdue" decision.
+
+**Decision**: Use MQTT, not Home Assistant's REST API — standard fit for a small ESP32 sensor, avoids storing a long-lived HA access token on the device. The device publishes the raw, absolute Last Cleaned Timestamp as a **retained** MQTT message, **only when a Cleaning Event occurs** — no periodic heartbeat. This works because the payload is an absolute timestamp: Home Assistant computes elapsed time itself (`now() − last_published_timestamp`) using its own clock whenever it needs to, so the device never needs to re-publish just to keep HA's data "fresh." All Reminder threshold logic (how many hours/days counts as overdue, notification routing, quiet hours) lives entirely in a Home Assistant automation, not in firmware — this keeps reminder tuning a no-reflash, HA-side change.
+
+**Considered**: Publishing a precomputed "hours since cleaned" duration instead of an absolute timestamp — rejected, because a duration value goes stale the instant time passes and would require a heartbeat publish to stay accurate, adding complexity for no benefit over letting HA do the subtraction itself. Also considered letting the device decide overdue status locally and publish a boolean/event — rejected to keep firmware dumb and avoid needing a reflash to retune reminder timing.
+
+The device does not subscribe to any MQTT topic to accept remote-triggered Cleaning Events (e.g. from HA's app or voice assistants) — the physical button is the only input. This was a deliberate scope cut, not a hard constraint, and could be revisited later without affecting the decisions above.

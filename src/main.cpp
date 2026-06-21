@@ -3,6 +3,7 @@
 #include <string>
 
 #include "domain/display_format.h"
+#include "domain/mood.h"
 #include "domain/recording_gate.h"
 #include "hardware/button.h"
 #include "hardware/display_driver.h"
@@ -42,9 +43,11 @@ void refreshDisplay() {
     time_t now = time(nullptr);
     std::string text =
         domain::formatLastCleaned(lastCleaned, now, UTC_OFFSET_SECONDS);
-    hardware::showLastCleaned(text);
+    time_t elapsed = (now >= lastCleaned) ? (now - lastCleaned) : 0;
+    domain::Mood mood = domain::moodFromElapsed(elapsed);
+    hardware::showLastCleaned(text, mood);
   } else {
-    hardware::showLastCleaned("never recorded yet");
+    hardware::showLastCleaned("never recorded yet", domain::Mood::Happy);
   }
   lastDisplayRefreshMs = millis();
 }

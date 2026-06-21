@@ -7,6 +7,7 @@
 #include "domain/recording_gate.h"
 #include "hardware/button.h"
 #include "hardware/display_driver.h"
+#include "hardware/mqtt_ha_publish.h"
 #include "hardware/nvs_last_cleaned_store.h"
 #include "hardware/wifi_time_sync.h"
 
@@ -98,9 +99,13 @@ void loop() {
     // rejected, we deliberately do nothing else: the "time not synced"
     // screen already explains why the press didn't register.
     if (domain::canRecordCleaningEvent(hasSyncedAtLeastOnce)) {
-      store.set(time(nullptr));
+      time_t now = time(nullptr);
+      store.set(now);
       Serial.println("[main] cleaning event recorded");
       refreshDisplay();
+      if (!hardware::performMqttHaPublish(now)) {
+        Serial.println("[main] mqtt publish failed (will retry on next event)");
+      }
     } else {
       Serial.println("[main] press rejected -- time not synced yet");
     }

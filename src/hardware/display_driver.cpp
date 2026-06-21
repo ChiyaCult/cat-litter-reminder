@@ -40,15 +40,22 @@ constexpr int SRAM_CS = 32;
 // chip -- Adafruit product #1028 as sold since the June 2025 SSD1680
 // revision. Uncomment this pair (and comment out Variant A above) if your
 // board is the red/black/white variant.
- ThinkInk_290_Tricolor_Z94 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
-                                    EPD_BUSY, &SPI);
- constexpr thinkinkmode_t kDisplayMode = THINKINK_TRICOLOR;
+//ThinkInk_290_Tricolor_Z94 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
+//                                    EPD_BUSY, &SPI);
+// constexpr thinkinkmode_t kDisplayMode = THINKINK_TRICOLOR;
 
 // Variant C: 2.9" 296x128 monochrome, UC8151D chip (older flexible
 // display). Uncomment this pair (and comment out Variant A above) if so.
 // ThinkInk_290_Mono_M06 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
 //                                EPD_BUSY, &SPI);
-// constexpr uint8_t kDisplayMode = THINKINK_MONO;
+// constexpr thinkinkmode_t kDisplayMode = THINKINK_MONO;
+
+// Variant D: 2.9" 296x128 Tri-Color (Black/White/Red) breakout, IL0373
+// chip -- this is the variant confirmed for this project: Adafruit
+// product #1028 in its IL0373 chipset revision.
+ThinkInk_290_Tricolor_Z10 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
+                                   EPD_BUSY, &SPI);
+constexpr thinkinkmode_t kDisplayMode = THINKINK_TRICOLOR;
 
 constexpr int16_t kTextX = 8;
 constexpr int16_t kLabelY = 40;
@@ -57,11 +64,15 @@ constexpr int16_t kValueY = 64;
 } // namespace
 
 void initDisplay() {
+  Serial.println("[display] SPI.begin()...");
   SPI.begin(); // default VSPI pins: SCK=18, MISO=19, MOSI=23
+  Serial.println("[display] display.begin()...");
   display.begin(kDisplayMode);
+  Serial.println("[display] display.begin() returned");
 }
 
 void showLastCleaned(const std::string &text) {
+  Serial.println("[display] showLastCleaned: clearBuffer");
   display.clearBuffer();
   display.setTextColor(EPD_BLACK);
   display.setTextSize(2);
@@ -69,10 +80,13 @@ void showLastCleaned(const std::string &text) {
   display.print("Last cleaned:");
   display.setCursor(kTextX, kValueY);
   display.print(text.c_str());
+  Serial.println("[display] showLastCleaned: calling display.display()...");
   display.display();
+  Serial.println("[display] showLastCleaned: display.display() returned");
 }
 
 void showTimeNotSynced() {
+  Serial.println("[display] showTimeNotSynced: clearBuffer");
   display.clearBuffer();
   display.setTextColor(EPD_BLACK);
   display.setTextSize(2);
@@ -80,7 +94,9 @@ void showTimeNotSynced() {
   display.print("Time not synced");
   display.setCursor(kTextX, kValueY);
   display.print("Waiting for WiFi...");
+  Serial.println("[display] showTimeNotSynced: calling display.display()...");
   display.display();
+  Serial.println("[display] showTimeNotSynced: display.display() returned");
 }
 
 } // namespace hardware

@@ -74,7 +74,9 @@ void setup() {
   Serial.println("[main] booting cat litter reminder...");
 
   button.begin();
+  Serial.println("[main] before display init");
   hardware::initDisplay();
+  Serial.println("[main] after display init");
   hardware::showTimeNotSynced();
   Serial.println("[main] display initialized, showing 'time not synced'");
 

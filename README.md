@@ -18,7 +18,7 @@ ESP32 + Adafruit ThinkInk 2.9" e-ink display + one button. Press the button afte
    ```
    then edit `include/secrets.h` with your real SSID/password. This file is gitignored — never commit it.
 
-2. **Confirm your exact e-ink display variant.** Adafruit has sold a few different chipset revisions of the "2.9\" 296x128" breakout under the same product line. Open `src/hardware/display_driver.cpp` and check the board's label/your order against the comments there — exactly one `ThinkInk_290_...` line should be uncommented. The code defaults to the grayscale/mono SSD1680 variant (`ThinkInk_290_Grayscale4_EAAMFGN`); if yours turns out to be the red/black/white tri-color breakout, switch to `ThinkInk_290_Tricolor_Z94` instead (everything else in the file works unchanged either way, since it only draws in `EPD_BLACK`).
+2. **Display variant — confirmed.** This project uses the Adafruit 2.9" 296x128 Red/Black/White breakout (product #1028) in its **IL0373** chipset revision, which needs the `ThinkInk_290_Tricolor_Z10` initializer. That's the variant currently active (uncommented) in `src/hardware/display_driver.cpp`. The file also keeps the other chipset revisions Adafruit has sold under the same product line as commented-out alternatives, in case you ever swap the physical board — only `EPD_BLACK` is drawn either way, so no other code needs to change.
 
 3. **Set your timezone offset.** In `src/main.cpp`, `UTC_OFFSET_SECONDS` defaults to `0` (UTC). Set it to your local offset in seconds (e.g. `3600` for UTC+1) so "today"/"yesterday" match your actual calendar day.
 

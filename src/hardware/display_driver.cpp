@@ -32,17 +32,17 @@ constexpr int SRAM_CS = 32;
 // Variant A (default): 2.9" 296x128, 4-level grayscale (used here as plain
 // monochrome), SSD1680 chip -- most likely match if your board's chip is
 // SSD1680 and it is NOT the red/black/white tri-color version.
-ThinkInk_290_Grayscale4_EAAMFGN display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
-                                         EPD_BUSY, &SPI);
-constexpr uint8_t kDisplayMode = THINKINK_MONO;
+//ThinkInk_290_Grayscale4_EAAMFGN display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
+ //                                        EPD_BUSY, &SPI);
+//constexpr uint8_t kDisplayMode = THINKINK_MONO;
 
 // Variant B: 2.9" 296x128 Tri-Color (Black/White/Red) breakout, SSD1680
 // chip -- Adafruit product #1028 as sold since the June 2025 SSD1680
 // revision. Uncomment this pair (and comment out Variant A above) if your
 // board is the red/black/white variant.
-// ThinkInk_290_Tricolor_Z94 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
-//                                    EPD_BUSY, &SPI);
-// constexpr uint8_t kDisplayMode = THINKINK_TRICOLOR;
+ ThinkInk_290_Tricolor_Z94 display(EPD_DC, EPD_RESET, EPD_CS, SRAM_CS,
+                                    EPD_BUSY, &SPI);
+ constexpr thinkinkmode_t kDisplayMode = THINKINK_TRICOLOR;
 
 // Variant C: 2.9" 296x128 monochrome, UC8151D chip (older flexible
 // display). Uncomment this pair (and comment out Variant A above) if so.
